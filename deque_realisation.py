@@ -19,7 +19,7 @@ class Deque:
     def __is_full(self) -> bool:
         return self.size == self.max_size
 
-    def __is_empty(self):
+    def __is_empty(self) -> bool:
         return self.size == 0
 
     def push_back(self, value: int):

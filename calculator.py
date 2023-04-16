@@ -22,8 +22,8 @@ def is_operator(operator: str) -> bool:
 class Stack:
 
     def __init__(self) -> None:
-        self.items = []
-        self.count = 0
+        self.items: list = []
+        self.count: int = 0
 
     def push(self, item: int) -> None:
         """Добавляет в стек"""
