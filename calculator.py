@@ -1,10 +1,12 @@
-# ID = 85882520
+# ID_1 = 85882520
+# ID_2 = 85941877
 
-import logging
+from exceptions import OperationError
 
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO)
+OPERATORS = {'+': '__add__',
+             '-': '__sub__',
+             '*': '__mul__',
+             '/': '__floordiv__'}
 
 
 def is_operator(operator: str) -> bool:
@@ -25,18 +27,18 @@ class Stack:
         self.items: list = []
         self.count: int = 0
 
-    def push(self, item: int) -> None:
+    def push(self, item: int, digitize=int) -> None:
         """Добавляет в стек"""
-        self.items.append(item)
+        self.items.append(digitize(item))
         self.count += 1
 
-    def pop(self):
+    def pop(self) -> int:
         """
         Удаляет и возвращает элемент из стека,
         Если стек пустой - возращает 'error'
         """
         if self.count == 0:
-            return 'error'
+            raise OperationError('error')
         else:
             self.count -= 1
             return self.items.pop()
@@ -63,22 +65,16 @@ def calculate(values: list) -> int:
     stack = Stack()
     for char in values:
         if not is_operator(char):
-            logging.debug(char)
-            stack.push(int(char))
+            stack.push(char)
         else:
             second_number = stack.pop()
             first_number = stack.pop()
-            logging.debug(first_number, second_number)
-            if char == '*':
-                stack.push(second_number * first_number)
-            elif char == '+':
-                stack.push(first_number + second_number)
-            elif char == '-':
-                stack.push(first_number - second_number)
-            else:
-                stack.push(first_number // second_number)
+            stack.push(getattr(first_number, OPERATORS[char])(second_number))
     return stack.peek
 
 
 if __name__ == '__main__':
-    print(calculate(input().split()))
+    try:
+        print(calculate(input().split()))
+    except OperationError as message:
+        print(message)
