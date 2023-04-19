@@ -1,5 +1,6 @@
 # ID_1 = 85860585
 # ID_2 = 85953970
+# ID_3 = 86028900
 
 import logging
 
@@ -15,27 +16,26 @@ logging.basicConfig(
 class Deque:
 
     def __init__(self, max_size: int) -> None:
-        self.max_size: int = max_size
-        # я овощь - не понял, почему неправильно?
-        # 1 сдвигаем влево -> 0
-        self.head: int = 0
-        self.tail: int = 0
-        self.items: list = [None] * max_size
-        self.size: int = 0
+        self.__max_size: int = max_size
+        self.__head: int = self.__max_size - 1
+        self.__tail: int = 0
+        self.__items: list = [None] * max_size
+        self.__size: int = 0
 
-    @property
     def __logging(self) -> None:
         """Осуществляет логирование"""
-        logging.debug(self.items)
-        logging.debug(self.head)
-        logging.debug(self.tail)
-        logging.debug(self.size)
+        logging.debug(self.__items)
+        logging.debug(self.__head)
+        logging.debug(self.__tail)
+        logging.debug(self.__size)
 
+    @property
     def __is_full(self) -> bool:
-        return self.size == self.max_size
+        return self.__size == self.__max_size
 
+    @property
     def __is_empty(self) -> bool:
-        return self.size == 0
+        return self.__size == 0
 
     def push_back(self, value: int):
         """
@@ -43,23 +43,14 @@ class Deque:
         Если в деке уже находится максимальное число элементов,
         вывести «error».
         """
-        # теперь сначала значение - потом указатель
-        # честно, вообще не понимаю фишку с (...)%self.max_size
-        if self.__is_full():
+        if self.__is_full:
             raise OperationError('error')
-        if self.tail == 0 and self.size == 0:
-            self.items[self.tail] = value
-            self.head = self.max_size - 1
-            self.tail += 1
-            self.size += 1
-            self.__logging
-        else:
-            self.items[self.tail] = value
-            self.tail += 1
-            self.size += 1
-            if self.tail == self.max_size:
-                self.tail = 0
-            self.__logging
+        self.__items[self.__tail] = value
+        self.__tail += 1
+        self.__size += 1
+        if self.__tail == self.__max_size:
+            self.__tail = 0
+        self.__logging()
 
     def push_front(self, value: int):
         """
@@ -67,51 +58,40 @@ class Deque:
         Если в деке уже находится максимальное число элементов,
         вывести «error».
         """
-        if self.__is_full():
+        if self.__is_full:
             raise OperationError('error')
-        if self.head == 0 and self.size == 0:
-            self.items[self.head] = value
-            self.head = self.max_size - 1
-            self.tail += 1
-            self.size += 1
-            self.__logging
-        elif self.head == 0 and self.size != 0:
-            self.items[self.head] = value
-            self.head = self.max_size - 1
-            self.size += 1
-            self.__logging
+        if self.__head == 0 and self.__size != 0:
+            self.__items[self.__head] = value
+            self.__head = self.__max_size - 1
+            self.__size += 1
+            self.__logging()
         else:
-            self.size += 1
-            self.items[self.head] = value
-            self.head -= 1
-            self.__logging
+            self.__size += 1
+            self.__items[self.__head] = value
+            self.__head -= 1
+            self.__logging()
 
     def pop_front(self):
         """
         вывести первый элемент дека и удалить его.
         Если дек был пуст, то вывести «error».
         """
-        if self.__is_empty():
+        if self.__is_empty:
             raise OperationError('error')
-        self.size -= 1
-        if self.head == self.max_size - 1 and self.size == 0:
-            result = self.items[0]
-            self.items[0] = None
-            self.head = self.tail = 0
-            self.__logging
+        self.__size -= 1
+        if self.__head == self.__max_size - 1:
+            result = self.__items[0]
+            self.__items[0] = None
+            self.__head = 0
+            self.__logging()
             return result
-        if self.head == self.max_size - 1:
-            result = self.items[0]
-            self.items[0] = None
-            self.head = 0
-            self.__logging
-            return result
-        result = self.items[self.head + 1]
-        self.items[self.head + 1] = None
-        self.head += 1
-        if self.size == 0:
-            self.tail = self.head = 0
-        self.__logging
+        result = self.__items[self.__head + 1]
+        self.__items[self.__head + 1] = None
+        self.__head += 1
+        if self.__size == 0:
+            self.__tail = 0
+            self.__head = self.__max_size - 1
+        self.__logging()
         return result
 
     def pop_back(self):
@@ -119,24 +99,26 @@ class Deque:
         вывести последний элемент дека и удалить его.
         Если дек был пуст, то вывести «error».
         """
-        if self.__is_empty():
+        if self.__is_empty:
             raise OperationError('error')
-        self.size -= 1
-        if self.tail == 0:
-            result = self.items[self.max_size - 1]
-            self.items[self.max_size - 1] = None
-            self.tail = self.max_size - 1
-            if self.size == 0:
-                self.tail = self.head = 0
-            self.__logging
+        self.__size -= 1
+        if self.__tail == 0:
+            result = self.__items[self.__max_size - 1]
+            self.__items[self.__max_size - 1] = None
+            self.__tail = self.__max_size - 1
+            if self.__size == 0:
+                self.__tail = 0
+                self.__head = self.__max_size - 1
+            self.__logging()
             return result
         else:
-            result = self.items[self.tail-1]
-            self.items[self.tail-1] = None
-            self.tail -= 1
-            if self.size == 0:
-                self.tail = self.head = 0
-            self.__logging
+            result = self.__items[self.__tail-1]
+            self.__items[self.__tail-1] = None
+            self.__tail -= 1
+            if self.__size == 0:
+                self.__tail = 0
+                self.__head = self.__max_size - 1
+            self.__logging()
             return result
 
 

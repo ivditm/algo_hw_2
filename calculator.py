@@ -1,5 +1,6 @@
 # ID_1 = 85882520
 # ID_2 = 85941877
+# ID_3 = 85988605
 
 from exceptions import OperationError
 
@@ -9,53 +10,41 @@ OPERATORS = {'+': '__add__',
              '/': '__floordiv__'}
 
 
-def is_operator(operator: str) -> bool:
-    """
-    Определяет, является ли символ оператором.
-    Input: '+'
-    Output: True
-    """
-    if (operator == '+' or operator == '-' or operator == '/'
-       or operator == '*'):
-        return True
-    return False
-
-
 class Stack:
 
     def __init__(self) -> None:
-        self.items: list = []
-        self.count: int = 0
+        self.__items: list = []
+        self.__count: int = 0
 
     def push(self, item: int, digitize=int) -> None:
         """Добавляет в стек"""
-        self.items.append(digitize(item))
-        self.count += 1
+        self.__items.append(digitize(item))
+        self.__count += 1
 
     def pop(self) -> int:
         """
         Удаляет и возвращает элемент из стека,
         Если стек пустой - возращает 'error'
         """
-        if self.count == 0:
+        if self.__count == 0:
             raise OperationError('error')
         else:
-            self.count -= 1
-            return self.items.pop()
+            self.__count -= 1
+            return self.__items.pop()
 
     @property
     def peek(self) -> int:
         """
         Возвращает последний элемент из стека,
         не удаляя его"""
-        return self.items[-1]
+        return self.__items[-1]
 
     @property
     def size(self) -> int:
         """
         Возращает размер стека
         """
-        return self.count
+        return self.__count
 
 
 def calculate(values: list) -> int:
@@ -64,7 +53,7 @@ def calculate(values: list) -> int:
     """
     stack = Stack()
     for char in values:
-        if not is_operator(char):
+        if char not in OPERATORS:
             stack.push(char)
         else:
             second_number = stack.pop()
